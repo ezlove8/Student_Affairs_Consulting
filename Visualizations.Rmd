@@ -1,0 +1,168 @@
+---
+title: "HUG/Non-HUG Rejection Rate Visualizations"
+author: "Jennifer Fedor, Kayleigh Adamson, Elijah Lovelace"
+date: "2/6/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+df <- fread('/Users/ezlovelace/Documents/BIOST Consulting/HUG Student Affairs Project/Data/hug_data_app_version_20200123.csv')
+df$Rejected = NA
+df$Rejected[which(df$Application.Status == 'Rejected')] <- 1
+df$Rejected[which(df$Application.Status != 'Rejected')] <- 0
+df$Gender_Program = paste(df$Gender,df$program)
+df$Gender_Program_HUG = paste(df$Gender,df$program, df$HUG)
+df$Gender_HUG = paste(df$Gender, df$HUG)
+df$program_HUG = paste(df$program, df$HUG)
+states_oi <- list('MD', 'NY', 'OH', 'PA', 'VA', 'DC', 'WV')
+```
+
+
+
+## Including Plots
+
+
+```{r, echo=FALSE}
+plot1 <- ggplot(df[which(df$HUG != 'Unknown'),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = "All Programs/Gender/All States")+
+  ylab('Proportion Rejected')+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))
+  
+  #scale_color_discrete("HUG")
+  #stat_summary(fun.ymin=min,fun.ymax=max,geom="errorbar",
+               #color="grey80",position=position_dodge(1), width=.2)
+
+plot1
+#all programs+male+all states
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State'),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = "All Programs/All States")+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+
+  
+
+#masters+all states
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State' & program == 'Masters'),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = "Masters/All States")+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+
+#doctoral+all states
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State' & program == 'Doctoral'),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar", width = .7, position=position_dodge(width=0.8))+
+  labs(title = "Doctoral/All States")+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+
+#masters+allegheny county
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State' & program == 'Masters' & County.of.Residence == 'Allegheny County'),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = "Masters/Allegheny County")+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+
+#doctoral+allegheny county
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State' & program == 'Doctoral' & County.of.Residence == 'Allegheny County'),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = 'Doctoral/Allegheny County')+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+#masters+surrounding states
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State' & program == 'Masters'  & State.of.Residence %in% states_oi),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = "Masters/PA and Surrounding States")+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+
+#doctoral+staties
+ggplot(df[which(df$HUG != 'Unknown' & df$Gender != 'Declined to State' & program == 'Doctoral' & State.of.Residence %in% states_oi),], aes(Department, Rejected, fill=HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = 'Doctoral/PA and Surrounding States')+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("royalblue2", "goldenrod2"))+
+  ylim(c(0,1))
+
+
+```
+
+Trying plots with multiple levels  
+
+
+```{r, echo = FALSE}
+# ggplot(df[which(df$HUG != 'Unknown'),], aes(Department, Rejected, fill=Gender_Program_HUG)) +
+#   stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+#   labs(title = 'All Programs')+
+#   ylab('Proportion Rejected')
+
+# #Masters by Gender/HUG  
+# ggplot(df[which(df$HUG != 'Unknown' & program == 'Masters'),], aes(Department, Rejected, fill=Gender_HUG)) +
+#   stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+#   labs(title = 'Masters by Gender/HUG')+
+#   ylab('Proportion Rejected')  
+# 
+# #Doctoral by Gender/HUG
+# ggplot(df[which(df$HUG != 'Unknown' & program == 'Doctoral'),], aes(Department, Rejected, fill=Gender_HUG)) +
+#   stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+#   labs(title = 'Doctoral by Gender/HUG')+
+#   ylab('Proportion Rejected')  
+
+#Gender by Program/HUG  
+ggplot(df[which(df$HUG != 'Unknown' & Gender != 'Declined to State'),], aes(Department, Rejected, fill=program_HUG)) +
+  stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+  labs(title = 'Gender by Program/HUG')+
+  ylab('Proportion Rejected')+
+  facet_wrap(~Gender)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = c("lightblue", "darkblue",'tomato','tomato4'))+
+  ylim(c(0,1))
+
+# #Females by Program/HUG
+# ggplot(df[which(df$HUG != 'Unknown' & Gender == 'Female'),], aes(Department, Rejected, fill=program_HUG)) +
+#   stat_summary(fun.y=mean, geom="bar",position=position_dodge())+
+#   labs(title = 'Females by Program/HUG')+
+#   ylab('Proportion Rejected')  
+
+```
+
